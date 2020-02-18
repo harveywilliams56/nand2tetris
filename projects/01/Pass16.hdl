@@ -1,0 +1,35 @@
+//helper chip
+//
+//With a more advanced hardware simulator,
+//fanning could be implemented directly without this chip 
+/**
+* 16-bit transistor with one switch
+ * out = in if sel == 1
+ *       0 if sel == 0
+ */
+
+CHIP Pass16 {
+    IN in[16], pass;
+    OUT out[16];
+
+    PARTS:
+    // Put your code here:
+    And16(a=in,
+    	  b[0]=pass,
+    	  b[1]=pass,
+    	  b[2]=pass,
+    	  b[3]=pass,
+    	  b[4]=pass,
+    	  b[5]=pass,
+    	  b[6]=pass,
+    	  b[7]=pass,
+    	  b[8]=pass,
+    	  b[9]=pass,
+    	  b[10]=pass,
+    	  b[11]=pass,
+    	  b[12]=pass,
+    	  b[13]=pass,
+    	  b[14]=pass,
+    	  b[15]=pass,
+  	  out=out);
+}
