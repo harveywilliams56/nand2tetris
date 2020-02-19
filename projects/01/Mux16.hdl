@@ -16,10 +16,47 @@ CHIP Mux16 {
     PARTS:
     // Put your code here:
     Not(in=sel, out=Notsel);
-    Pass16(in=a, pass=Notsel, out=Pass16a);
-    Pass16(in=b, pass=sel, out=Pass16b);
-    Or16(a=Pass16a, b=Pass16b, out=out);
+    Nand16(a=a,
+           b[0]=Notsel, 
+           b[1]=Notsel, 
+           b[2]=Notsel, 
+           b[3]=Notsel, 
+           b[4]=Notsel, 
+           b[5]=Notsel, 
+           b[6]=Notsel, 
+           b[7]=Notsel, 
+           b[8]=Notsel, 
+           b[9]=Notsel, 
+           b[10]=Notsel, 
+           b[11]=Notsel, 
+           b[12]=Notsel, 
+           b[13]=Notsel, 
+           b[14]=Notsel, 
+           b[15]=Notsel, 
+	   out=aNandNotsel);
+
+    Nand16(a[0]=sel,
+    	   a[1]=sel,
+    	   a[2]=sel,
+    	   a[3]=sel,
+    	   a[4]=sel,
+    	   a[5]=sel,
+    	   a[6]=sel,
+    	   a[7]=sel,
+    	   a[8]=sel,
+    	   a[9]=sel,
+    	   a[10]=sel,
+    	   a[11]=sel,
+    	   a[12]=sel,
+    	   a[13]=sel,
+    	   a[14]=sel,
+    	   a[15]=sel,
+    	   b=b,
+	   out=selNandb);
+    Nand16(a=aNandNotsel, b=selNandb, out=out);
     //Written this way to avoid using 16 Not(sel) chips
+    //This was what prompted creation of the Nand16 helper-chip
+    //See Mux.hdl for proof of logic
 
     
 }

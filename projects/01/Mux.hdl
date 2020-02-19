@@ -16,7 +16,19 @@ CHIP Mux {
     PARTS:
     // Put your code here:
     Not(in=sel, out=Notsel);
-    And(a=a, b=Notsel, out=aAndNotsel);
-    And(a=sel, b=b, out=selAndb);
-    Or(a=aAndNotsel, b=selAndb, out=out);
+    Nand(a=a, b=Notsel, out=aNandNotsel);
+    Nand(a=sel, b=b, out=selNandb);
+    Nand(a=aNandNotsel, b=selNandb, out=out);
 }
+
+//Original chip:
+//    (aAnd(Notsel))Or(selAndb)
+//
+//However:
+//    aOrb = (Nota)Nand(Notb)
+//
+//Therefore:
+//    (aAnd(Notsel))Or(selAndb)
+//   =(Not(aAnd(Notsel)))Nand(Not(selAndb))
+//   =(aNand(Notsel)Nand(selNandb)
+    
