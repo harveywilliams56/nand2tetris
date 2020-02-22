@@ -16,7 +16,23 @@ CHIP Xor {
     // Put your code here:
     Not(in=a, out=Nota);
     Not(in=b, out=Notb);
-    And(a=a, b=Notb, out=aAndNotb);
-    And(a=Nota, b=b, out=NotaAndb);
-    Or(a=aAndNotb, b=NotaAndb, out=out);
+    Nand(a=a, b=Notb, out=aNandNotb);
+    Nand(a=Nota, b=b, out=NotaNandb);
+    Nand(a=aNandNotb, b=NotaNandb, out=out);
 }
+
+//Original chip:
+//	(aAnd(Notb))Or((Nota)Andb)
+//
+//However:
+//	aOrb
+//     =(Nota)Nand(Notb)
+//
+//Therefore:
+//	(aAnd(Notb))Or((Nota)Andb)
+//     =(Not(aAnd(Notb)))Nand(Not((Nota)Andb))
+//     =(aNand(Notb))Nand((Nota)Nandb)
+
+
+
+

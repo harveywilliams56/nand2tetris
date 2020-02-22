@@ -30,5 +30,5 @@ CHIP Mux {
 //Therefore:
 //    (aAnd(Notsel))Or(selAndb)
 //   =(Not(aAnd(Notsel)))Nand(Not(selAndb))
-//   =(aNand(Notsel)Nand(selNandb)
+//   =(aNand(Notsel))Nand(selNandb)
     
