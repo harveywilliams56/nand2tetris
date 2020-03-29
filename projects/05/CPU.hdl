@@ -1,0 +1,94 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/05/CPU.hdl
+
+/**
+ * The Hack CPU (Central Processing unit), consisting of an ALU,
+ * two registers named A and D, and a program counter named PC.
+ * The CPU is designed to fetch and execute instructions written in 
+ * the Hack machine language. In particular, functions as follows:
+ * Executes the inputted instruction according to the Hack machine 
+ * language specification. The D and A in the language specification
+ * refer to CPU-resident registers, while M refers to the external
+ * memory location addressed by A, i.e. to Memory[A]. The inM input 
+ * holds the value of this location. If the current instruction needs 
+ * to write a value to M, the value is placed in outM, the address 
+ * of the target location is placed in the addressM output, and the 
+ * writeM control bit is asserted. (When writeM==0, any value may 
+ * appear in outM). The outM and writeM outputs are combinational: 
+ * they are affected instantaneously by the execution of the current 
+ * instruction. The addressM and pc outputs are clocked: although they 
+ * are affected by the execution of the current instruction, they commit 
+ * to their new values only in the next time step. If reset==1 then the 
+ * CPU jumps to address 0 (i.e. pc is set to 0 in next time step) rather 
+ * than to the address resulting from executing the current instruction. 
+ */
+
+CHIP CPU {
+
+    IN  inM[16],         // M value input  (M = contents of RAM[A])
+        instruction[16], // Instruction for execution
+        reset;           // Signals whether to re-start the current
+                         // program (reset==1) or continue executing
+                         // the current program (reset==0).
+
+    OUT outM[16],        // M value output
+        writeM,          // Write to M? 
+        addressM[15],    // Address in data memory (of M)
+        pc[15];          // address of next instruction
+
+    PARTS:
+    // Put your code here:
+
+    // NB: if instruction[15] == 0, it is an instruction to write directly to register A
+    //     if instruction[15] == 1, it is a control instruction
+
+
+// A-register:
+    Mux16(a=instruction, b=ALUout, sel=instruction[15], out=MuxA);
+    // If instruction[15] == 0, it must be directly written to register A
+    // If instruction[15] == 1 AND instruction [5] == 1, ALUout is written to A
+    Not(in=instruction[15], out=Notinstruction15);
+    Or(a=Notinstruction15, b=instruction[5], out=writeA);
+    ARegister(in=MuxA, load=writeA, out=Aregister, out[0..14]=addressM);
+
+// Use A-register as data or to point to RAM[A] (also referred to as M)?
+    Mux16(a=Aregister, b=inM, sel=instruction[12], out=AMuxM);
+
+// D-register:
+    And(a=instruction[15], b=instruction[4], out=writeD);
+    DRegister(in=ALUout, load=writeD, out=Dregister);
+
+// ALU:
+    ALU(x=Dregister, y=AMuxM, zx=instruction[11],
+                              nx=instruction[10],
+			      zy=instruction[9],
+			      ny=instruction[8],
+			      f=instruction[7],
+			      no=instruction[6],
+			      out=ALUout, out=outM,
+			      zr=zr, ng=ng);
+
+// Conditional jump logic:
+    // Algebraically simplified from the canonical representation:
+    Nand(a=zr, b=instruction[1], out=jumpifzero);
+    Nand(a=ng, b=instruction[2], out=jumpifneg);
+    And(a=jumpifzero, b=jumpifneg, out=j2j1);  //j2 and j1 control jumpifzero and jumpifneg
+
+    Not(in=zr, out=Notzr);
+    Not(in=ng, out=Notng);
+    And(a=Notzr, b=Notng, out=neg);
+    Nand(a=neg, b=instruction[0], out=jumpifpos);
+
+    Nand(a=j2j1, b=jumpifpos, out=j3j2j1);
+    And(a=j3j2j1, b=instruction[15], out=JUMP);
+    // NB: if instruction[15] == 0, it should only be written directly to register-A
+
+// Program Counter:
+    // NB: The A-register is also used to point to ROM[A] when jumping
+    PC(in=Aregister, load=JUMP, inc=true, reset=reset, out[0..14]=pc);
+
+// Write to RAM[A]?
+    And(a=instruction[3], b=instruction[15], out=writeM);
+}
